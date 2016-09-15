@@ -1,43 +1,57 @@
 ## Libraries and data
 
 library(dplyr)
-library(...)
-surveys <- read.csv(..., na.strings = "") %>%
-  filter(!is.na(species_id), !is.na(sex), !is.na(weight))
+library(ggplot2)
+surveys <- read.csv("data/surveys.csv", na.strings = "") %>%
+  filter(!is.na(species_id), !is.na(sex), !is.na(weight))#removing na species, na sex, and na weight from data, "!" means "not"
 
 ## Constructing layered graphics in ggplot
 
-ggplot(...,
-       ...) +
-  ...
+ggplot(data=surveys,
+       aes(x=species_id, y = weight)) + # finishes the ggplot call right here - + adds a new call; aes defines an aesthetic mapping
+  geom_point()
 
 ggplot(data = surveys,
        aes(x = species_id, y = weight)) +
-  ...
-  geom_point(...,
-             ...,
-             ...)
+  geom_boxplot()+               # each geom is its own layer
+  geom_point(stat= "summary",   # instead of plotting all points, this tells it to plot a specific statistic
+             fun.y = "mean",
+             color = "red")
+qplot(x=species_id, y= weight, data=surveys, geom= "boxplot") #quick plot single layer plotting
+
 
 ## Exercise 1
+surveys_DM<- filter(surveys, species_id=="DM")
+ggplot(data=surveys_DM,
+       aes(x=year, y=weight))+
+  geom_point(stat="summary",
+             fun.y="mean",
+             aes(color=factor(sex))) #added the aesthetic to geom point object
 
-...
+surveys_DM<- filter(surveys, species_id=="DM")
+ggplot(data=surveys_DM,
+       aes(x=year, y=weight, color=factor(sex)))+
+  geom_point(stat="summary",
+             fun.y="mean")
 
 ## Adding a regression line
 
-levels(surveys$sex) <- c("Female", "Male")
-surveys_dm <- filter(surveys, ...)
-ggplot(...,
+levels(surveys$sex) <- c("Female", "Male") # allows to be able to group on factors - makes the strings factors
+surveys_DM <- filter(surveys, species_id=="DM")
+ggplot(surveys_DM,
        aes(x = year, y = weight)) +
-  geom_point(...,
+  geom_point(aes(shape=sex, color = sex),
              size = 3,
              stat = "summary",
              fun.y = "mean") +
-  ...
+  geom_smooth(aes(group=sex, color = sex), method="lm")
 
-ggplot(data = surveys_dm,
-       aes(...,
-           ...,
-           ...)) +
+
+
+ggplot(data = surveys_DM,
+       aes(x=year,
+           y=weight,
+           color=sex)) +  #puts color specifications in the begining
   geom_point(aes(shape = sex),
              size = 3,
              stat = "summary",
@@ -46,7 +60,7 @@ ggplot(data = surveys_dm,
 
 # Storing and re-plotting
 
-year_wgt <- ggplot(data = surveys_dm,
+year_wgt <- ggplot(data = surveys_DM,
                    aes(x = year,
                        y = weight,
                        color = sex)) +
@@ -57,15 +71,20 @@ year_wgt <- ggplot(data = surveys_dm,
   geom_smooth(method = "lm")
 
 year_wgt +
-  ...
+  scale_color_manual(values=c("pink","black"))
                      
 year_wgt <- year_wgt +
-  scale_color_manual(...)
+  scale_color_manual(values=c("light blue","black"))
 year_wgt
 
 ## Exercise 2
 
-...
+surveys_DM<- filter(surveys, species_id=="DM")
+ggplot(data=surveys_DM,
+       aes(weight, fill=sex))+
+  geom_histogram(
+    binwidth=.5) +
+  scale_fill_manual(values=c("light blue","black"))
 
 ## Axes, labels and themes
 
